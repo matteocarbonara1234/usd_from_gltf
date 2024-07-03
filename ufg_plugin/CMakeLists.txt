@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,25 +22,25 @@ add_library(ufg_plugin SHARED
   ufg_plugin.h
 )
 
-if (MSVC)
-target_link_libraries(ufg_plugin
-  convert
-  ${USD_LIBS}
-  arch.lib
-)
-elseif (APPLE)
-target_link_libraries(ufg_plugin
-  convert
-  ${USD_LIBS}
-  libarch.dylib
-)
-else ()
-target_link_libraries(ufg_plugin
-  convert
-  ${USD_LIBS}
-  libarch.so
-)
-endif ()
+if(MSVC)
+  target_link_libraries(ufg_plugin
+    convert
+    ${USD_LIBS}
+    arch.lib
+  )
+elseif(APPLE)
+  target_link_libraries(ufg_plugin
+    convert
+    ${USD_LIBS}
+    libarch.dylib
+  )
+else()
+  target_link_libraries(ufg_plugin
+    convert
+    ${USD_LIBS}
+    libusd_arch.so
+  )
+endif()
 
 # Name it .dll for all platforms to match the reference in plugInfo.json.
 # This is simpler than copying platform-specific plugInfo.json files.

@@ -144,6 +144,7 @@ void Gltf::Swap(Gltf* other) {
 
 const char* const Gltf::kExtensionIdNames[kExtensionCount] = {
     nullptr,                                // kExtensionUnknown
+    "KHR_mesh_quantization",                // kExtensionQuant
     "KHR_materials_unlit",                  // kExtensionUnlit
     "KHR_materials_pbrSpecularGlossiness",  // kExtensionSpecGloss
     "KHR_texture_transform",                // kExtensionTextureTransform
@@ -159,25 +160,25 @@ const uint16_t Gltf::kAccessorComponentTypeValues[Accessor::kComponentCount] = {
     5125,  // kComponentUnsignedInt
     5126,  // kComponentFloat
 };
-const char* const Gltf::kAccessorComponentTypeNames[
-  Accessor::kComponentCount] = {
-    nullptr,           // kComponentUnset
-    "BYTE",            // kComponentByte
-    "UNSIGNED_BYTE",   // kComponentUnsignedByte
-    "SHORT",           // kComponentShort
-    "UNSIGNED_SHORT",  // kComponentUnsignedShort
-    "UNSIGNED_INT",    // kComponentUnsignedInt
-    "FLOAT",           // kComponentFloat
+const char* const Gltf::kAccessorComponentTypeNames[Accessor::kComponentCount] =
+    {
+        nullptr,           // kComponentUnset
+        "BYTE",            // kComponentByte
+        "UNSIGNED_BYTE",   // kComponentUnsignedByte
+        "SHORT",           // kComponentShort
+        "UNSIGNED_SHORT",  // kComponentUnsignedShort
+        "UNSIGNED_INT",    // kComponentUnsignedInt
+        "FLOAT",           // kComponentFloat
 };
-const Gltf::ComponentFormat Gltf::kAccessorComponentTypeFormats[
-  Accessor::kComponentCount] = {
-    Gltf::kComponentFormatCount,        // kComponentUnset
-    Gltf::kComponentFormatSignedInt,    // kComponentByte
-    Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedByte
-    Gltf::kComponentFormatSignedInt,    // kComponentShort
-    Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedShort
-    Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedInt
-    Gltf::kComponentFormatFloat,        // kComponentFloat
+const Gltf::ComponentFormat
+    Gltf::kAccessorComponentTypeFormats[Accessor::kComponentCount] = {
+        Gltf::kComponentFormatCount,        // kComponentUnset
+        Gltf::kComponentFormatSignedInt,    // kComponentByte
+        Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedByte
+        Gltf::kComponentFormatSignedInt,    // kComponentShort
+        Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedShort
+        Gltf::kComponentFormatUnsignedInt,  // kComponentUnsignedInt
+        Gltf::kComponentFormatFloat,        // kComponentFloat
 };
 const uint8_t Gltf::kAccessorComponentTypeSizes[Accessor::kComponentCount] = {
     0,  // kComponentUnset
@@ -210,20 +211,20 @@ const uint8_t Gltf::kAccessorTypeComponentCounts[Gltf::Accessor::kTypeCount] = {
     4 * 4,  // kTypeMat4
 };
 
-const char* const Gltf::kAnimationChannelTargetPathNames[
-  Animation::Channel::Target::kPathCount] = {
-    nullptr,        // kPathUnset
-    "translation",  // kPathTranslation
-    "rotation",     // kPathRotation
-    "scale",        // kPathScale
-    "weights",      // kPathWeights
+const char* const Gltf::kAnimationChannelTargetPathNames
+    [Animation::Channel::Target::kPathCount] = {
+        nullptr,        // kPathUnset
+        "translation",  // kPathTranslation
+        "rotation",     // kPathRotation
+        "scale",        // kPathScale
+        "weights",      // kPathWeights
 };
 
-const char* const Gltf::kAnimationSamplerInterpolationNames[
-  Animation::Sampler::kInterpolationCount] = {
-    "LINEAR",       // kInterpolationLinear
-    "STEP",         // kInterpolationStep
-    "CUBICSPLINE",  // kInterpolationCubicSpline
+const char* const Gltf::kAnimationSamplerInterpolationNames
+    [Animation::Sampler::kInterpolationCount] = {
+        "LINEAR",       // kInterpolationLinear
+        "STEP",         // kInterpolationStep
+        "CUBICSPLINE",  // kInterpolationCubicSpline
 };
 
 const uint16_t Gltf::kBufferViewTargetValues[BufferView::kTargetCount] = {
@@ -250,7 +251,7 @@ const char* const Gltf::kImageMimeTypeNames[Image::kMimeCount] = {
     "image/gif",   // kMimeGif
     nullptr,       // kMimeOther
 };
-const char* const Gltf::kImageMimeTypeExtensions[Image::kMimeCount] {
+const char* const Gltf::kImageMimeTypeExtensions[Image::kMimeCount]{
     nullptr,  // kMimeUnset
     ".jpg",   // kMimeJpeg
     ".png",   // kMimePng
@@ -287,13 +288,13 @@ const char* const Gltf::kMaterialAlphaModeNames[Material::kAlphaModeCount] = {
 
 const Gltf::SemanticInfo Gltf::kSemanticInfos[Gltf::Mesh::kSemanticCount] = {
     // { prefix, prefix_len, suffix, component_min, component_max}
-    {"POSITION" , CONST_STRLEN("POSITION" ), false, 3, 3},  // kSemanticPosition
-    {"NORMAL"   , CONST_STRLEN("NORMAL"   ), false, 3, 3},  // kSemanticNormal
-    {"TANGENT"  , CONST_STRLEN("TANGENT"  ), false, 3, 4},  // kSemanticTangent
-    {"TEXCOORD_", CONST_STRLEN("TEXCOORD_"), true , 1, 4},  // kSemanticTexcoord
-    {"COLOR_"   , CONST_STRLEN("COLOR_"   ), true , 3, 4},  // kSemanticColor
-    {"JOINTS_"  , CONST_STRLEN("JOINTS_"  ), true , 1, 4},  // kSemanticJoints
-    {"WEIGHTS_" , CONST_STRLEN("WEIGHTS_" ), true , 1, 4},  // kSemanticWeights
+    {"POSITION", CONST_STRLEN("POSITION"), false, 3, 3},   // kSemanticPosition
+    {"NORMAL", CONST_STRLEN("NORMAL"), false, 3, 3},       // kSemanticNormal
+    {"TANGENT", CONST_STRLEN("TANGENT"), false, 3, 4},     // kSemanticTangent
+    {"TEXCOORD_", CONST_STRLEN("TEXCOORD_"), true, 1, 4},  // kSemanticTexcoord
+    {"COLOR_", CONST_STRLEN("COLOR_"), true, 3, 4},        // kSemanticColor
+    {"JOINTS_", CONST_STRLEN("JOINTS_"), true, 1, 4},      // kSemanticJoints
+    {"WEIGHTS_", CONST_STRLEN("WEIGHTS_"), true, 1, 4},    // kSemanticWeights
 };
 
 const uint8_t Gltf::kMeshPrimitiveModeValues[Mesh::Primitive::kModeCount] = {
@@ -375,17 +376,17 @@ Gltf::Image::MimeType Gltf::FindImageMimeTypeByUri(const Uri& uri) {
              : GetUriDataImageMimeType(uri.data_type);
 }
 
-const Gltf::Image::MimeType Gltf::kUriDataImageMimeTypes[
-  Gltf::Uri::kDataTypeCount] {
-    Gltf::Image::kMimeUnset,  // kDataTypeNone
-    Gltf::Image::kMimeUnset,  // kDataTypeBin
-    Gltf::Image::kMimeJpeg ,  // kDataTypeImageJpeg
-    Gltf::Image::kMimePng  ,  // kDataTypeImagePng
-    Gltf::Image::kMimeBmp  ,  // kDataTypeImageBmp
-    Gltf::Image::kMimeGif  ,  // kDataTypeImageGif
-    Gltf::Image::kMimeOther,  // kDataTypeImageOther
-    Gltf::Image::kMimeUnset,  // kDataTypeUnknown
-};
+const Gltf::Image::MimeType
+    Gltf::kUriDataImageMimeTypes[Gltf::Uri::kDataTypeCount]{
+        Gltf::Image::kMimeUnset,  // kDataTypeNone
+        Gltf::Image::kMimeUnset,  // kDataTypeBin
+        Gltf::Image::kMimeJpeg,   // kDataTypeImageJpeg
+        Gltf::Image::kMimePng,    // kDataTypeImagePng
+        Gltf::Image::kMimeBmp,    // kDataTypeImageBmp
+        Gltf::Image::kMimeGif,    // kDataTypeImageGif
+        Gltf::Image::kMimeOther,  // kDataTypeImageOther
+        Gltf::Image::kMimeUnset,  // kDataTypeUnknown
+    };
 
 const char* const kUriDataTypeNames[]{
     nullptr,                     // kDataTypeNone

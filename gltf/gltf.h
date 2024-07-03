@@ -24,85 +24,102 @@
 #include <string>
 #include <vector>
 
-struct Gltf {
+struct Gltf
+{
   // Integer identifier used for internal glTF index references.
-  enum class Id : uint16_t {
+  enum class Id : uint16_t
+  {
     kNull = 0xffff
   };
 
-  inline static constexpr size_t IdToIndex(Id id) {
+  inline static constexpr size_t IdToIndex(Id id)
+  {
     return static_cast<size_t>(id);
   }
-  inline static constexpr Id IndexToId(size_t index) {
+  inline static constexpr Id IndexToId(size_t index)
+  {
     return static_cast<Id>(index);
   }
 
   template <typename T>
-  inline static const T* GetById(const std::vector<T>& values, Id id) {
+  inline static const T *GetById(const std::vector<T> &values, Id id)
+  {
     const size_t index = static_cast<size_t>(id);
     return index < values.size() ? &values[index] : nullptr;
   }
 
   template <typename T>
-  inline static T* GetById(std::vector<T>& values, Id id) {
+  inline static T *GetById(std::vector<T> &values, Id id)
+  {
     const size_t index = static_cast<size_t>(id);
     return index < values.size() ? &values[index] : nullptr;
   }
 
   template <typename T>
-  inline static bool IsValidId(const std::vector<T>& values, Id id) {
+  inline static bool IsValidId(const std::vector<T> &values, Id id)
+  {
     const size_t index = static_cast<size_t>(id);
     return index < values.size();
   }
 
   // Partial replacement for std::optional (which is not available pre C++17).
   template <typename T>
-  class Optional {
-   public:
+  class Optional
+  {
+  public:
     Optional() : exists_(false) {}
-    Optional(const T& value) : exists_(false) { *this = value; }
-    Optional(T&& value) : exists_(false) { *this = value; }
-    Optional& operator=(std::nullptr_t) { exists_ = false; return *this; }
-    Optional& operator=(const T& value) {
+    Optional(const T &value) : exists_(false) { *this = value; }
+    Optional(T &&value) : exists_(false) { *this = value; }
+    Optional &operator=(std::nullptr_t)
+    {
+      exists_ = false;
+      return *this;
+    }
+    Optional &operator=(const T &value)
+    {
       exists_ = true;
       value_ = value;
       return *this;
     }
-    Optional& operator=(T&& value) {
+    Optional &operator=(T &&value)
+    {
       exists_ = true;
       value_ = value;
       return *this;
     }
-    T* operator->() { return exists_ ? &value_ : nullptr; }
-    const T* operator->() const { return exists_ ? &value_ : nullptr; }
-    T& operator*() { return value_; }
-    const T& operator*() const { return value_; }
+    T *operator->() { return exists_ ? &value_ : nullptr; }
+    const T *operator->() const { return exists_ ? &value_ : nullptr; }
+    T &operator*() { return value_; }
+    const T &operator*() const { return value_; }
     operator bool() const { return exists_; }
     void Reset() { exists_ = false; }
-    void Swap(Optional* other) {
+    void Swap(Optional *other)
+    {
       std::swap(exists_, other->exists_);
       std::swap(value_, other->value_);
     }
 
-   private:
+  private:
     bool exists_;
     T value_;
   };
 
-  struct Uri {
+  struct Uri
+  {
     // Used for non-data URIs.
     std::string path;
 
     // Data URI type and binary.
-    enum DataType : uint8_t {
-      kDataTypeNone,        // No binary data, use path instead.
-      kDataTypeBin,         // "data:application/octet-stream"
-      kDataTypeImageJpeg,   // "data:image/jpeg"
-      kDataTypeImagePng,    // "data:image/png"
-      kDataTypeImageBmp,    // "data:image/bmp"
-      kDataTypeImageGif,    // "data:image/gif"
-      kDataTypeImageOther,  // "data:image/" <other>
-      kDataTypeUnknown,     // "data:" <other>
+    enum DataType : uint8_t
+    {
+      kDataTypeNone,       // No binary data, use path instead.
+      kDataTypeBin,        // "data:application/octet-stream"
+      kDataTypeImageJpeg,  // "data:image/jpeg"
+      kDataTypeImagePng,   // "data:image/png"
+      kDataTypeImageBmp,   // "data:image/bmp"
+      kDataTypeImageGif,   // "data:image/gif"
+      kDataTypeImageOther, // "data:image/" <other>
+      kDataTypeUnknown,    // "data:" <other>
       kDataTypeCount
     } data_type;
     std::vector<uint8_t> data;
@@ -112,17 +129,20 @@ struct Gltf {
 
   // Known extensions supported by this loader. All other extensions will be
   // skipped (with a warning).
-  enum ExtensionId : uint8_t {
+  enum ExtensionId : uint8_t
+  {
     kExtensionUnknown,
-    kExtensionUnlit,             // KHR_materials_unlit
-    kExtensionSpecGloss,         // KHR_materials_pbrSpecularGlossiness
-    kExtensionTextureTransform,  // KHR_texture_transform
-    kExtensionDraco,             // KHR_draco_mesh_compression
+    kExtensionQuant,            // KHR_mesh_quantization
+    kExtensionUnlit,            // KHR_materials_unlit
+    kExtensionSpecGloss,        // KHR_materials_pbrSpecularGlossiness
+    kExtensionTextureTransform, // KHR_texture_transform
+    kExtensionDraco,            // KHR_draco_mesh_compression
     kExtensionCount
   };
 
   // Metadata about the glTF asset.
-  struct Asset {
+  struct Asset
+  {
     // [Optional] A copyright message suitable for display to credit the content
     // creator.
     std::string copyright;
@@ -134,7 +154,7 @@ struct Gltf {
     std::string minVersion;
 
     void Clear();
-    void Swap(Asset* other);
+    void Swap(Asset *other);
     bool IsSupportedVersion() const;
   };
 
@@ -142,7 +162,8 @@ struct Gltf {
   // accessor provides a typed view into a bufferView or a subset of a
   // bufferView similar to how WebGL's `vertexAttribPointer()` defines an
   // attribute in a buffer.
-  struct Accessor {
+  struct Accessor
+  {
     // [Optional] Accessor name.
     std::string name;
     // [Optional] The index of the bufferView. When not defined, accessor must
@@ -166,27 +187,29 @@ struct Gltf {
     // and `Float32Array`, respectively. 5125 (UNSIGNED_INT) is only allowed
     // when the accessor contains indices, i.e., the accessor is only referenced
     // by `primitive.indices`.
-    enum ComponentType : uint8_t {
+    enum ComponentType : uint8_t
+    {
       kComponentUnset,
-      kComponentByte,           // "BYTE"=5120
-      kComponentUnsignedByte,   // "UNSIGNED_BYTE"=5121
-      kComponentShort,          // "SHORT"=5122
-      kComponentUnsignedShort,  // "UNSIGNED_SHORT"=5123
-      kComponentUnsignedInt,    // "UNSIGNED_INT"=5125
-      kComponentFloat,          // "FLOAT"=5126
+      kComponentByte,          // "BYTE"=5120
+      kComponentUnsignedByte,  // "UNSIGNED_BYTE"=5121
+      kComponentShort,         // "SHORT"=5122
+      kComponentUnsignedShort, // "UNSIGNED_SHORT"=5123
+      kComponentUnsignedInt,   // "UNSIGNED_INT"=5125
+      kComponentFloat,         // "FLOAT"=5126
       kComponentCount
     } componentType = kComponentUnset;
 
     // [Required] Specifies if the attribute is a scalar, vector, or matrix.
-    enum Type : uint8_t {
+    enum Type : uint8_t
+    {
       kTypeUnset,
-      kTypeScalar,  // "SCALAR"
-      kTypeVec2,    // "VEC2"
-      kTypeVec3,    // "VEC3"
-      kTypeVec4,    // "VEC4"
-      kTypeMat2,    // "MAT2"
-      kTypeMat3,    // "MAT3"
-      kTypeMat4,    // "MAT4"
+      kTypeScalar, // "SCALAR"
+      kTypeVec2,   // "VEC2"
+      kTypeVec3,   // "VEC3"
+      kTypeVec4,   // "VEC4"
+      kTypeMat2,   // "MAT2"
+      kTypeMat3,   // "MAT3"
+      kTypeMat4,   // "MAT4"
       kTypeCount
     } type = kTypeUnset;
 
@@ -195,7 +218,8 @@ struct Gltf {
     uint32_t count = 0;
 
     static constexpr size_t kComponentMax = 16;
-    union Value {
+    union Value
+    {
       int32_t i[kComponentMax];
       uint32_t u[kComponentMax];
       float f[kComponentMax];
@@ -226,14 +250,16 @@ struct Gltf {
     // [Optional] Sparse storage of attributes that deviate from their
     // initialization value.
     // * count is 0 when this field is not present.
-    struct Sparse {
+    struct Sparse
+    {
       // [Required] The number of attributes encoded in this sparse accessor.
       uint32_t count = 0;
 
       // [Required] Index array of size `count` that points to those accessor
       // attributes that deviate from their initialization value. Indices must
       // strictly increase.
-      struct Indices {
+      struct Indices
+      {
         // [Required] The index of the bufferView with sparse indices.
         // Referenced bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER
         // target.
@@ -251,7 +277,8 @@ struct Gltf {
       // the displaced accessor attributes pointed by `indices`. Substituted
       // values must have the same `componentType` and number of components as
       // the base accessor.
-      struct Values {
+      struct Values
+      {
         // [Required] The index of the bufferView with sparse values. Referenced
         // bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER target.
         Id bufferView = Id::kNull;
@@ -263,30 +290,34 @@ struct Gltf {
   };
 
   // A keyframe animation.
-  struct Animation {
+  struct Animation
+  {
     // Targets an animation's sampler at a node's property.
-    struct Channel {
+    struct Channel
+    {
       // [Required] The index of a sampler in this animation used to compute the
       // value for the target.
       Id sampler = Id::kNull;
 
       // [Required] The index of the node and TRS property that an animation
       // channel targets.
-      struct Target {
+      struct Target
+      {
         // [Optional] The index of the node to target.
         Id node = Id::kNull;
 
         // [Required] The name of the node's TRS property to modify.
-        enum Path : uint8_t {
+        enum Path : uint8_t
+        {
           kPathUnset,
           // Translation along the x, y, and z axes.
-          kPathTranslation,  // "translation"
+          kPathTranslation, // "translation"
           // Quaternion in the order (x, y, z, w), where w is the scalar.
-          kPathRotation,  // "rotation"
+          kPathRotation, // "rotation"
           // Values are the scaling factors along the x, y, and z axes.
-          kPathScale,  // "scale"
+          kPathScale, // "scale"
           // Used for morph targets.
-          kPathWeights,  // "weights"
+          kPathWeights, // "weights"
           kPathCount
         } path = kPathUnset;
       } target;
@@ -294,7 +325,8 @@ struct Gltf {
 
     // Combines input and output accessors with an interpolation algorithm to
     // define a keyframe graph (but not its target).
-    struct Sampler {
+    struct Sampler
+    {
       // [Required] The index of an accessor containing keyframe input values,
       // e.g., time. That accessor must have componentType `FLOAT`. The values
       // represent time in seconds with `time[0] >= 0.0`, and strictly
@@ -302,23 +334,24 @@ struct Gltf {
       Id input = Id::kNull;
 
       // [Optional] Interpolation algorithm.
-      enum Interpolation : uint8_t {
+      enum Interpolation : uint8_t
+      {
         // The animated values are linearly interpolated between keyframes. When
         // targeting a rotation, spherical linear interpolation (slerp) should
         // be used to interpolate quaternions. The number output of elements
         // must equal the number of input elements.
-        kInterpolationLinear,  // "LINEAR"
+        kInterpolationLinear, // "LINEAR"
         // The animated values remain constant to the output of the first
         // keyframe, until the next keyframe. The number of output elements must
         // equal the number of input elements.
-        kInterpolationStep,  // "STEP"
+        kInterpolationStep, // "STEP"
         // The animation's interpolation is computed using a cubic spline with
         // specified tangents. The number of output elements must equal three
         // times the number of input elements. For each input element, the
         // output stores three elements, an in-tangent, a spline vertex, and an
         // out-tangent. There must be at least two keyframes when using this
         // interpolation.
-        kInterpolationCubicSpline,  // "CUBICSPLINE"
+        kInterpolationCubicSpline, // "CUBICSPLINE"
         kInterpolationCount
       } interpolation = kInterpolationLinear;
 
@@ -346,7 +379,8 @@ struct Gltf {
   };
 
   // A buffer points to binary geometry, animation, or skins.
-  struct Buffer {
+  struct Buffer
+  {
     // [Optional] The name of the buffer.
     std::string name;
     // [Optional] The uri of the buffer. Relative paths are relative to the
@@ -358,7 +392,8 @@ struct Gltf {
   };
 
   // A view into a buffer generally representing a subset of the buffer.
-  struct BufferView {
+  struct BufferView
+  {
     // [Optional] The name of the buffer view.
     std::string name;
     // [Required] The index of the buffer.
@@ -372,32 +407,36 @@ struct Gltf {
     // same bufferView, this field must be defined.
     uint8_t byteStride = 0;
     // [Optional] The target that the GPU buffer should be bound to.
-    enum Target : uint8_t {
+    enum Target : uint8_t
+    {
       kTargetUnset,
-      kTargetArrayBuffer,         // ARRAY_BUFFER=34962
-      kTargetElementArrayBuffer,  // ELEMENT_ARRAY_BUFFER=34963
+      kTargetArrayBuffer,        // ARRAY_BUFFER=34962
+      kTargetElementArrayBuffer, // ELEMENT_ARRAY_BUFFER=34963
       kTargetCount
     } target = kTargetUnset;
   };
 
   // A camera's projection. A node can reference a camera to apply a transform
   // to place the camera in the scene.
-  struct Camera {
+  struct Camera
+  {
     // [Optional] The name of the camera.
     std::string name;
 
     // [Required] Specifies if the camera uses a perspective or orthographic
     // projection. Based on this, either the camera's `perspective` or
     // `orthographic` property will be defined.
-    enum Type : uint8_t {
-      kTypePerspective,   // perspective
-      kTypeOrthographic,  // orthographic
+    enum Type : uint8_t
+    {
+      kTypePerspective,  // perspective
+      kTypeOrthographic, // orthographic
       kTypeCount
     } type;
 
     // An orthographic camera containing properties to create an orthographic
     // projection matrix.
-    struct Orthographic {
+    struct Orthographic
+    {
       // [Required] The floating-point horizontal magnification of the view.
       // Must not be zero.
       float xmag;
@@ -415,7 +454,8 @@ struct Gltf {
 
     // A perspective camera containing properties to create a perspective
     // projection matrix.
-    struct Perspective {
+    struct Perspective
+    {
       // [Optional] The floating-point aspect ratio of the field of view. When
       // this is undefined, the aspect ratio of the canvas is used.
       float aspectRatio;
@@ -432,7 +472,8 @@ struct Gltf {
     };
 
     // [Required] One of these is set, according to type.
-    union {
+    union
+    {
       // An orthographic camera containing properties to create an orthographic
       // projection matrix.
       Orthographic orthographic;
@@ -446,7 +487,8 @@ struct Gltf {
 
   // Image data used to create a texture. Image can be referenced by URI or
   // `bufferView` index. `mimeType` is required in the latter case.
-  struct Image {
+  struct Image
+  {
     // [Optional] Image name.
     std::string name;
     // [Optional] The uri of the image. Relative paths are relative to the .gltf
@@ -454,13 +496,14 @@ struct Gltf {
     // data-uri. The image format must be jpg or png.
     Uri uri;
     // [Optional] The image's MIME type. Required if `bufferView` is defined.
-    enum MimeType : uint8_t {
+    enum MimeType : uint8_t
+    {
       kMimeUnset,
-      kMimeJpeg,   // "image/jpeg"
-      kMimePng,    // "image/png"
-      kMimeBmp,    // "image/bmp"
-      kMimeGif,    // "image/gif"
-      kMimeOther,  // "image/" <other>
+      kMimeJpeg,  // "image/jpeg"
+      kMimePng,   // "image/png"
+      kMimeBmp,   // "image/bmp"
+      kMimeGif,   // "image/gif"
+      kMimeOther, // "image/" <other>
       kMimeCount
     } mimeType = kMimeUnset;
     // [Optional] The index of the bufferView that contains the image. Use this
@@ -469,9 +512,11 @@ struct Gltf {
   };
 
   // The material appearance of a primitive.
-  struct Material {
+  struct Material
+  {
     // Reference to a texture.
-    struct Texture {
+    struct Texture
+    {
       // [Required] The index of the texture.
       Id index = Id::kNull;
       // [Optional] This integer value is used to construct a string in the
@@ -483,7 +528,8 @@ struct Gltf {
 
       // [Optional] "KHR_texture_transform": glTF extension that enables
       // shifting and scaling UV coordinates on a per-texture basis.
-      struct Transform {
+      struct Transform
+      {
         // [Optional] The offset of the UV coordinate origin as a factor of the
         // texture dimensions.
         float offset[2] = {0.0f, 0.0f};
@@ -494,11 +540,10 @@ struct Gltf {
         // coordinates.
         float scale[2] = {1.0f, 1.0f};
 
-        bool IsIdentity() const {
-          return
-              offset[0] == 0.0f && offset[1] == 0.0f &&
-              rotation == 0.0f &&
-              scale[0] == 1.0f && scale[1] == 1.0f;
+        bool IsIdentity() const
+        {
+          return offset[0] == 0.0f && offset[1] == 0.0f && rotation == 0.0f &&
+                 scale[0] == 1.0f && scale[1] == 1.0f;
         }
       } transform;
     };
@@ -510,7 +555,8 @@ struct Gltf {
     // metallic-roughness material model from Physically-Based Rendering (PBR)
     // methodology. When not specified, all the default values of
     // `pbrMetallicRoughness` apply.
-    struct Pbr {
+    struct Pbr
+    {
       // [Optional] The RGBA components of the base color of the material. The
       // fourth component (A) is the alpha coverage of the material. The
       // `alphaMode` property specifies how alpha is interpreted. These values
@@ -545,7 +591,8 @@ struct Gltf {
       // [Optional] "KHR_materials_pbrSpecularGlossiness": glTF extension that
       // defines the specular-glossiness material model from Physically-Based
       // Rendering (PBR) methodology.
-      struct SpecGloss {
+      struct SpecGloss
+      {
         // [Optional] The RGBA components of the reflected diffuse color of the
         // material. Metals have a diffuse value of `[0.0, 0.0, 0.0]`. The
         // fourth component (A) is the alpha coverage of the material. The
@@ -584,7 +631,8 @@ struct Gltf {
     // so: `float3 normalVector = tex2D(<sampled normal map texture value>,
     // texCoord) * 2 - 1`. Client implementations should normalize the normal
     // vectors before using them in lighting equations.
-    struct NormalTexture : Texture {
+    struct NormalTexture : Texture
+    {
       // [Optional] The scalar multiplier applied to each normal vector of the
       // texture. This value scales the normal vector using the formula:
       // `scaledNormal =  normalize((<sampled normal texture value> * 2.0 - 1.0)
@@ -598,7 +646,8 @@ struct Gltf {
     // indirect lighting and lower values indicate no indirect lighting. These
     // values are linear. If other channels are present (GBA), they are ignored
     // for occlusion calculations.
-    struct OcclusionTexture : Texture {
+    struct OcclusionTexture : Texture
+    {
       // A scalar multiplier controlling the amount of occlusion applied. A
       // value of 0.0 means no occlusion. A value of 1.0 means full occlusion.
       // This value affects the resulting color using the formula:
@@ -620,16 +669,17 @@ struct Gltf {
 
     // [Optional] The material's alpha rendering mode enumeration specifying the
     // interpretation of the alpha value of the main factor and texture.
-    enum AlphaMode : uint8_t {
+    enum AlphaMode : uint8_t
+    {
       // The alpha value is ignored and the rendered output is fully opaque.
-      kAlphaModeOpaque,  // "OPAQUE"
+      kAlphaModeOpaque, // "OPAQUE"
       // The rendered output is either fully opaque or fully transparent
       // depending on the alpha value and the specified alpha cutoff value.
-      kAlphaModeMask,  // "MASK"
+      kAlphaModeMask, // "MASK"
       // The alpha value is used to composite the source and destination areas.
       // The rendered output is combined with the background using the normal
       // painting operation (i.e. the Porter and Duff over operator).
-      kAlphaModeBlend,  // "BLEND"
+      kAlphaModeBlend, // "BLEND"
       kAlphaModeCount
     } alphaMode = kAlphaModeOpaque;
 
@@ -654,24 +704,27 @@ struct Gltf {
     // The maximum number of textures in this structure.
     static constexpr size_t kTextureMax = 7;
 
-    size_t GetTextures(const Texture* (&out_textures)[kTextureMax]) const;
+    size_t GetTextures(const Texture *(&out_textures)[kTextureMax]) const;
   };
 
   // A set of primitives to be rendered. A node can contain one mesh. A node's
   // transform places the mesh in the scene.
-  struct Mesh {
-    enum Semantic : uint8_t {
-      kSemanticPosition,  // "POSITION"
-      kSemanticNormal,    // "NORMAL"
-      kSemanticTangent,   // "TANGENT"
-      kSemanticTexcoord,  // "TEXCOORD_[n]"
-      kSemanticColor,     // "COLOR_[n]"
-      kSemanticJoints,    // "JOINTS_[n]"
-      kSemanticWeights,   // "WEIGHTS_[n]"
+  struct Mesh
+  {
+    enum Semantic : uint8_t
+    {
+      kSemanticPosition, // "POSITION"
+      kSemanticNormal,   // "NORMAL"
+      kSemanticTangent,  // "TANGENT"
+      kSemanticTexcoord, // "TEXCOORD_[n]"
+      kSemanticColor,    // "COLOR_[n]"
+      kSemanticJoints,   // "JOINTS_[n]"
+      kSemanticWeights,  // "WEIGHTS_[n]"
       kSemanticCount
     };
 
-    struct Attribute {
+    struct Attribute
+    {
       using Number = uint8_t;
       Semantic semantic;
       Number number;
@@ -679,14 +732,17 @@ struct Gltf {
       explicit Attribute(Semantic semantic = kSemanticCount, Number number = 0,
                          Id accessor = Id::kNull)
           : semantic(semantic), number(number), accessor(accessor) {}
-      friend bool operator<(const Attribute& a, const Attribute& b) {
+      friend bool operator<(const Attribute &a, const Attribute &b)
+      {
         return a.semantic < b.semantic ||
                (a.semantic == b.semantic && a.number < b.number);
       }
-      friend bool operator==(const Attribute& a, const Attribute& b) {
+      friend bool operator==(const Attribute &a, const Attribute &b)
+      {
         return a.semantic == b.semantic && a.number == b.number;
       }
-      friend bool operator!=(const Attribute& a, const Attribute& b) {
+      friend bool operator!=(const Attribute &a, const Attribute &b)
+      {
         return !(a == b);
       }
       std::string ToString() const;
@@ -705,7 +761,8 @@ struct Gltf {
     using AttributeSet = std::set<Attribute>;
 
     // Geometry to be rendered with the given material.
-    struct Primitive {
+    struct Primitive
+    {
       // [Required] A dictionary object, where each key corresponds to mesh
       // attribute semantic and each value is the index of the accessor
       // containing attribute's data.
@@ -725,14 +782,15 @@ struct Gltf {
       Id material = Id::kNull;
       // [Optional] The type of primitives to render. All valid values
       // correspond to WebGL enums.
-      enum Mode : uint8_t {
-        kModePoints,         // POINTS=0
-        kModeLines,          // LINES=1
-        kModeLineLoop,       // LINE_LOOP=2
-        kModeLineStrip,      // LINE_STRIP=3
-        kModeTriangles,      // TRIANGLES=4
-        kModeTriangleStrip,  // TRIANGLE_STRIP=5
-        kModeTriangleFan,    // TRIANGLE_FAN=6
+      enum Mode : uint8_t
+      {
+        kModePoints,        // POINTS=0
+        kModeLines,         // LINES=1
+        kModeLineLoop,      // LINE_LOOP=2
+        kModeLineStrip,     // LINE_STRIP=3
+        kModeTriangles,     // TRIANGLES=4
+        kModeTriangleStrip, // TRIANGLE_STRIP=5
+        kModeTriangleFan,   // TRIANGLE_FAN=6
         kModeCount
       } mode = kModeTriangles;
       // [Optional] An array of Morph Targets, each Morph Target is a
@@ -744,7 +802,8 @@ struct Gltf {
       // schema to use Draco geometry compression (non-normative) libraries in
       // glTF format.
       // * bufferView is Id::kNull when this field is not present.
-      struct Draco {
+      struct Draco
+      {
         // [Required] Points to the buffer containing compressed data.
         Id bufferView = Id::kNull;
         // [Required] Attributes defines the attributes stored in the
@@ -775,7 +834,8 @@ struct Gltf {
   // provided, the transform is the identity. When a node is targeted for
   // animation (referenced by an animation.channel.target), only TRS properties
   // may be present; `matrix` will not be present.
-  struct Node {
+  struct Node
+  {
     // [Optional] Node name.
     std::string name;
     // [Optional] The index of the camera referenced by this node.
@@ -788,13 +848,16 @@ struct Gltf {
 
     // [Required] The transform must be set to either a matrix or SRT.
     bool is_matrix;
-    union {
-      struct {
+    union
+    {
+      struct
+      {
         // A floating-point 4x4 transformation matrix stored in column-major
         // order.
         float matrix[16];
       };
-      struct {
+      struct
+      {
         // The node's non-uniform scale, given as the scaling factors along the
         // x, y, and z axes.
         float scale[3];
@@ -821,37 +884,41 @@ struct Gltf {
   };
 
   // Texture sampler properties for filtering and wrapping modes.
-  struct Sampler {
+  struct Sampler
+  {
     // [Optional] Sampler name.
     std::string name;
 
     // [Optional] Magnification filter. Valid values correspond to WebGL enums:
     // `9728` (NEAREST) and `9729` (LINEAR).
-    enum MagFilter : uint8_t {
+    enum MagFilter : uint8_t
+    {
       kMagFilterUnset,
-      kMagFilterNearest,  // "NEAREST"=9728
-      kMagFilterLinear,   // "LINEAR"=9729
+      kMagFilterNearest, // "NEAREST"=9728
+      kMagFilterLinear,  // "LINEAR"=9729
       kMagFilterCount
     } magFilter = kMagFilterUnset;
 
     // [Optional] Minification filter. All valid values correspond to WebGL
     // enums.
-    enum MinFilter : uint8_t {
+    enum MinFilter : uint8_t
+    {
       kMinFilterUnset,
-      kMinFilterNearest,               // "NEAREST"=9728
-      kMinFilterLinear,                // "LINEAR"=9729
-      kMinFilterNearestMipmapNearest,  // "NEAREST_MIPMAP_NEAREST"=9984
-      kMinFilterLinearMipmapNearest,   // "LINEAR_MIPMAP_NEAREST"=9985
-      kMinFilterNearestMipmapLinear,   // "NEAREST_MIPMAP_LINEAR"=9986
-      kMinFilterLinearMipmapLinear,    // "LINEAR_MIPMAP_LINEAR"=9987
+      kMinFilterNearest,              // "NEAREST"=9728
+      kMinFilterLinear,               // "LINEAR"=9729
+      kMinFilterNearestMipmapNearest, // "NEAREST_MIPMAP_NEAREST"=9984
+      kMinFilterLinearMipmapNearest,  // "LINEAR_MIPMAP_NEAREST"=9985
+      kMinFilterNearestMipmapLinear,  // "NEAREST_MIPMAP_LINEAR"=9986
+      kMinFilterLinearMipmapLinear,   // "LINEAR_MIPMAP_LINEAR"=9987
       kMinFilterCount,
     } minFilter = kMinFilterUnset;
 
-    enum WrapMode : uint8_t {
+    enum WrapMode : uint8_t
+    {
       kWrapUnset,
-      kWrapClamp,   // "CLAMP_TO_EDGE"=33071
-      kWrapMirror,  // "MIRRORED_REPEAT"=33648
-      kWrapRepeat,  // "REPEAT"=10497
+      kWrapClamp,  // "CLAMP_TO_EDGE"=33071
+      kWrapMirror, // "MIRRORED_REPEAT"=33648
+      kWrapRepeat, // "REPEAT"=10497
       kWrapCount
     };
 
@@ -865,7 +932,8 @@ struct Gltf {
   };
 
   // The root nodes of a scene.
-  struct Scene {
+  struct Scene
+  {
     // [Optional] Scene name.
     std::string name;
     // [Optional] The indices of each root node.
@@ -873,7 +941,8 @@ struct Gltf {
   };
 
   // Joints and matrices defining a skin.
-  struct Skin {
+  struct Skin
+  {
     // [Optional] Skin name.
     std::string name;
     // [Optional] The index of the accessor containing the floating-point 4x4
@@ -890,7 +959,8 @@ struct Gltf {
   };
 
   // A texture and its sampler.
-  struct Texture {
+  struct Texture
+  {
     // [Optional] Texture name.
     std::string name;
     // [Optional] The index of the sampler used by this texture. When undefined,
@@ -943,17 +1013,20 @@ struct Gltf {
   std::vector<Texture> textures;
 
   void Clear();
-  void Swap(Gltf* other);
+  void Swap(Gltf *other);
 
   // Get the name of a glTF object, generating it from ID if necessary.
   template <typename Value>
-  static std::string GetName(
-      const std::vector<Value>& values, Id id, const char* prefix) {
-    const Value* const value = GetById(values, id);
-    if (!value) {
+  static std::string GetName(const std::vector<Value> &values, Id id,
+                             const char *prefix)
+  {
+    const Value *const value = GetById(values, id);
+    if (!value)
+    {
       return std::string();
     }
-    if (!value->name.empty()) {
+    if (!value->name.empty())
+    {
       return value->name;
     }
     return std::string(prefix) + std::to_string(IdToIndex(id));
@@ -965,119 +1038,135 @@ struct Gltf {
   static Enum GetDefaultIfUnset(Enum e);
 
   // ExtensionId enum info.
-  static const char* const kExtensionIdNames[kExtensionCount];
-  static const char* const* GetEnumNames(ExtensionId, size_t* out_count) {
+  static const char *const kExtensionIdNames[kExtensionCount];
+  static const char *const *GetEnumNames(ExtensionId, size_t *out_count)
+  {
     *out_count = kExtensionCount;
     return kExtensionIdNames;
   }
 
   // Accessor::ComponentType enum info.
-  enum ComponentFormat : uint8_t {
+  enum ComponentFormat : uint8_t
+  {
     kComponentFormatSignedInt,
     kComponentFormatUnsignedInt,
     kComponentFormatFloat,
     kComponentFormatCount
   };
   static const uint16_t kAccessorComponentTypeValues[Accessor::kComponentCount];
-  static const char* const
+  static const char *const
       kAccessorComponentTypeNames[Accessor::kComponentCount];
   static const ComponentFormat
       kAccessorComponentTypeFormats[Accessor::kComponentCount];
   static const uint8_t kAccessorComponentTypeSizes[Accessor::kComponentCount];
-  static const char* const* GetEnumNames(Accessor::ComponentType,
-                                         size_t* out_count) {
+  static const char *const *GetEnumNames(Accessor::ComponentType,
+                                         size_t *out_count)
+  {
     *out_count = Accessor::kComponentCount;
     return kAccessorComponentTypeNames;
   }
   static ComponentFormat GetComponentFormat(
-      Accessor::ComponentType component_type) {
+      Accessor::ComponentType component_type)
+  {
     return static_cast<size_t>(component_type) < Accessor::kComponentCount
                ? kAccessorComponentTypeFormats[component_type]
                : kComponentFormatCount;
   }
-  static size_t GetComponentSize(Accessor::ComponentType component_type) {
+  static size_t GetComponentSize(Accessor::ComponentType component_type)
+  {
     return static_cast<size_t>(component_type) < Accessor::kComponentCount
                ? kAccessorComponentTypeSizes[component_type]
                : 0;
   }
-  static bool IsComponentUnsigned(Accessor::ComponentType component_type) {
+  static bool IsComponentUnsigned(Accessor::ComponentType component_type)
+  {
     return component_type == Accessor::kComponentUnsignedByte ||
            component_type == Accessor::kComponentUnsignedShort ||
            component_type == Accessor::kComponentUnsignedInt;
   }
 
   // Accessor::Type enum info.
-  static const char* const kAccessorTypeNames[Accessor::kTypeCount];
+  static const char *const kAccessorTypeNames[Accessor::kTypeCount];
   static const uint8_t kAccessorTypeComponentCounts[Accessor::kTypeCount];
   static const uint8_t kAccessorTypeCounts[Accessor::kTypeCount];
-  static const char* const* GetEnumNames(Accessor::Type, size_t* out_count) {
+  static const char *const *GetEnumNames(Accessor::Type, size_t *out_count)
+  {
     *out_count = Accessor::kTypeCount;
     return kAccessorTypeNames;
   }
-  static size_t GetComponentCount(Accessor::Type type) {
+  static size_t GetComponentCount(Accessor::Type type)
+  {
     return type < Accessor::kTypeCount ? kAccessorTypeComponentCounts[type] : 0;
   }
 
   // Animation::Channel::Target::Path enum info.
-  static const char* const
+  static const char *const
       kAnimationChannelTargetPathNames[Animation::Channel::Target::kPathCount];
-  static const char* const* GetEnumNames(Animation::Channel::Target::Path,
-                                         size_t* out_count) {
+  static const char *const *GetEnumNames(Animation::Channel::Target::Path,
+                                         size_t *out_count)
+  {
     *out_count = Animation::Channel::Target::kPathCount;
     return kAnimationChannelTargetPathNames;
   }
 
   // Animation::Sampler::Interpolation enum info.
-  static const char* const kAnimationSamplerInterpolationNames
+  static const char *const kAnimationSamplerInterpolationNames
       [Animation::Sampler::kInterpolationCount];
-  static const char* const* GetEnumNames(Animation::Sampler::Interpolation,
-                                         size_t* out_count) {
+  static const char *const *GetEnumNames(Animation::Sampler::Interpolation,
+                                         size_t *out_count)
+  {
     *out_count = Animation::Sampler::kInterpolationCount;
     return kAnimationSamplerInterpolationNames;
   }
 
   // BufferView::Target enum info.
   static const uint16_t kBufferViewTargetValues[BufferView::kTargetCount];
-  static const char* const kBufferViewTargetNames[BufferView::kTargetCount];
-  static const char* const* GetEnumNames(BufferView::Target,
-                                         size_t* out_count) {
+  static const char *const kBufferViewTargetNames[BufferView::kTargetCount];
+  static const char *const *GetEnumNames(BufferView::Target,
+                                         size_t *out_count)
+  {
     *out_count = BufferView::kTargetCount;
     return kBufferViewTargetNames;
   }
 
   // Camera::Type enum info.
-  static const char* const kCameraTypeNames[Camera::kTypeCount];
-  static const char* const* GetEnumNames(Camera::Type, size_t* out_count) {
+  static const char *const kCameraTypeNames[Camera::kTypeCount];
+  static const char *const *GetEnumNames(Camera::Type, size_t *out_count)
+  {
     *out_count = Camera::kTypeCount;
     return kCameraTypeNames;
   }
 
   // Image::MimeType enum info.
-  static const char* const kImageMimeTypeNames[Image::kMimeCount];
-  static const char* const kImageMimeTypeExtensions[Image::kMimeCount];
-  static const char* const* GetEnumNames(Image::MimeType, size_t* out_count) {
+  static const char *const kImageMimeTypeNames[Image::kMimeCount];
+  static const char *const kImageMimeTypeExtensions[Image::kMimeCount];
+  static const char *const *GetEnumNames(Image::MimeType, size_t *out_count)
+  {
     *out_count = Image::kMimeCount;
     return kImageMimeTypeNames;
   }
-  static const char* GetMimeTypeExtension(Image::MimeType mime_type) {
+  static const char *GetMimeTypeExtension(Image::MimeType mime_type)
+  {
     return mime_type < Image::kMimeCount ? kImageMimeTypeExtensions[mime_type]
                                          : nullptr;
   }
-  static Image::MimeType FindImageMimeTypeByExtension(const char* ext);
-  static Image::MimeType FindImageMimeTypeByPath(const std::string& path);
-  static Image::MimeType FindImageMimeTypeByUri(const Uri& uri);
+  static Image::MimeType FindImageMimeTypeByExtension(const char *ext);
+  static Image::MimeType FindImageMimeTypeByPath(const std::string &path);
+  static Image::MimeType FindImageMimeTypeByUri(const Uri &uri);
 
   // Material::AlphaMode enum info.
-  static const char* const kMaterialAlphaModeNames[Material::kAlphaModeCount];
-  static const char* const* GetEnumNames(Material::AlphaMode,
-                                         size_t* out_count) {
+  static const char *const kMaterialAlphaModeNames[Material::kAlphaModeCount];
+  static const char *const *GetEnumNames(Material::AlphaMode,
+                                         size_t *out_count)
+  {
     *out_count = Material::kAlphaModeCount;
     return kMaterialAlphaModeNames;
   }
 
   // Mesh::Semantic enum info.
-  struct SemanticInfo {
-    const char* prefix;
+  struct SemanticInfo
+  {
+    const char *prefix;
     uint8_t prefix_len;
     bool has_numeric_suffix;
     uint8_t component_min;
@@ -1087,9 +1176,10 @@ struct Gltf {
 
   // Mesh::Primitive::Mode enum info.
   static const uint8_t kMeshPrimitiveModeValues[Mesh::Primitive::kModeCount];
-  static const char* const kMeshPrimitiveModeNames[Mesh::Primitive::kModeCount];
-  static const char* const* GetEnumNames(Mesh::Primitive::Mode,
-                                         size_t* out_count) {
+  static const char *const kMeshPrimitiveModeNames[Mesh::Primitive::kModeCount];
+  static const char *const *GetEnumNames(Mesh::Primitive::Mode,
+                                         size_t *out_count)
+  {
     *out_count = Mesh::Primitive::kModeCount;
     return kMeshPrimitiveModeNames;
   }
@@ -1097,183 +1187,213 @@ struct Gltf {
 
   // Sampler::MagFilter enum info.
   static const uint16_t kSamplerMagFilterValues[Sampler::kMagFilterCount];
-  static const char* const kSamplerMagFilterNames[Sampler::kMagFilterCount];
-  static const char* const* GetEnumNames(Sampler::MagFilter,
-                                         size_t* out_count) {
+  static const char *const kSamplerMagFilterNames[Sampler::kMagFilterCount];
+  static const char *const *GetEnumNames(Sampler::MagFilter,
+                                         size_t *out_count)
+  {
     *out_count = Sampler::kMagFilterCount;
     return kSamplerMagFilterNames;
   }
 
   // Sampler::MinFilter enum info.
   static const uint16_t kSamplerMinFilterValues[Sampler::kMinFilterCount];
-  static const char* const kSamplerMinFilterNames[Sampler::kMinFilterCount];
-  static const char* const* GetEnumNames(Sampler::MinFilter,
-                                         size_t* out_count) {
+  static const char *const kSamplerMinFilterNames[Sampler::kMinFilterCount];
+  static const char *const *GetEnumNames(Sampler::MinFilter,
+                                         size_t *out_count)
+  {
     *out_count = Sampler::kMinFilterCount;
     return kSamplerMinFilterNames;
   }
 
   // Sampler::WrapMode enum info.
   static const uint16_t kSamplerWrapModeValues[Sampler::kWrapCount];
-  static const char* const kSamplerWrapModeNames[Sampler::kWrapCount];
-  static const char* const* GetEnumNames(Sampler::WrapMode, size_t* out_count) {
+  static const char *const kSamplerWrapModeNames[Sampler::kWrapCount];
+  static const char *const *GetEnumNames(Sampler::WrapMode, size_t *out_count)
+  {
     *out_count = Sampler::kWrapCount;
     return kSamplerWrapModeNames;
   }
 
   template <typename Enum>
-  static const char* GetEnumName(Enum e) {
+  static const char *GetEnumName(Enum e)
+  {
     size_t count;
-    const char* const* const names = GetEnumNames(Enum(), &count);
+    const char *const *const names = GetEnumNames(Enum(), &count);
     return static_cast<size_t>(e) < count ? names[e] : nullptr;
   }
 
   template <typename Enum>
-  static const char* GetEnumNameOrDefault(Enum e) {
+  static const char *GetEnumNameOrDefault(Enum e)
+  {
     return GetEnumName(GetDefaultIfUnset(e));
   }
 
   static const Image::MimeType kUriDataImageMimeTypes[Uri::kDataTypeCount];
-  static Image::MimeType GetUriDataImageMimeType(Uri::DataType data_type) {
+  static Image::MimeType GetUriDataImageMimeType(Uri::DataType data_type)
+  {
     return data_type < Uri::kDataTypeCount ? kUriDataImageMimeTypes[data_type]
                                            : Image::kMimeUnset;
   }
 
-  static Uri::DataType FindUriDataType(const char* name, size_t name_len);
+  static Uri::DataType FindUriDataType(const char *name, size_t name_len);
 
   // Perform ordered comparison useful for map keys.
-  static int Compare(const Material::Texture::Transform& a,
-                     const Material::Texture::Transform& b);
-  static int Compare(const Material::Texture& a,
-                     const Material::Texture& b);
-  static int Compare(const Material::Pbr::SpecGloss& a,
-                     const Material::Pbr::SpecGloss& b);
-  static int Compare(const Material::Pbr& a,
-                     const Material::Pbr& b);
-  static int Compare(const Material::NormalTexture& a,
-                     const Material::NormalTexture& b);
-  static int Compare(const Material::OcclusionTexture& a,
-                     const Material::OcclusionTexture& b);
-  static int Compare(const Material& a,
-                     const Material& b);
+  static int Compare(const Material::Texture::Transform &a,
+                     const Material::Texture::Transform &b);
+  static int Compare(const Material::Texture &a, const Material::Texture &b);
+  static int Compare(const Material::Pbr::SpecGloss &a,
+                     const Material::Pbr::SpecGloss &b);
+  static int Compare(const Material::Pbr &a, const Material::Pbr &b);
+  static int Compare(const Material::NormalTexture &a,
+                     const Material::NormalTexture &b);
+  static int Compare(const Material::OcclusionTexture &a,
+                     const Material::OcclusionTexture &b);
+  static int Compare(const Material &a, const Material &b);
 
   template <typename T>
-  static int Compare(const T& a, const T& b) {
+  static int Compare(const T &a, const T &b)
+  {
     return a == b ? 0 : (a < b ? -1 : 1);
   }
 
   template <typename T>
-  static int Compare(const Optional<T> &a, const Optional<T> &b) {
+  static int Compare(const Optional<T> &a, const Optional<T> &b)
+  {
     const bool a_exists = !a;
     const bool b_exists = !b;
-    if (a_exists != b_exists) {
+    if (a_exists != b_exists)
+    {
       return a_exists < b_exists ? -1 : 1;
     }
     return a_exists ? 0 : Compare(*a, *b);
   }
 
   template <size_t kCount>
-  static int Compare(const float (&a)[kCount], const float (&b)[kCount]) {
-    for (size_t i = 0; i != kCount; ++i) {
-      if (a[i] != b[i]) {
+  static int Compare(const float (&a)[kCount], const float (&b)[kCount])
+  {
+    for (size_t i = 0; i != kCount; ++i)
+    {
+      if (a[i] != b[i])
+      {
         return a[i] < b[i] ? -1 : 1;
       }
     }
     return 0;
   }
 
-  static void StringToLower(char* text) {
-    for (char* s = text; *s; ++s) {
+  static void StringToLower(char *text)
+  {
+    for (char *s = text; *s; ++s)
+    {
       *s = tolower(*s);
     }
   }
 
-  static bool StringEqualCI(const char* text0, size_t len0,
-                            const char* text1, size_t len1) {
-    if (len0 != len1) {
+  static bool StringEqualCI(const char *text0, size_t len0, const char *text1,
+                            size_t len1)
+  {
+    if (len0 != len1)
+    {
       return false;
     }
-    for (size_t i = 0; i != len0; ++i) {
+    for (size_t i = 0; i != len0; ++i)
+    {
       const int c0 = tolower(text0[i]);
       const int c1 = tolower(text1[i]);
-      if (c0 != c1) {
+      if (c0 != c1)
+      {
         return false;
       }
     }
     return true;
   }
 
-  static bool StringEqualCI(const char* text0, const char* text1) {
-    for (size_t i = 0; ; ++i) {
+  static bool StringEqualCI(const char *text0, const char *text1)
+  {
+    for (size_t i = 0;; ++i)
+    {
       const int c0 = tolower(text0[i]);
       const int c1 = tolower(text1[i]);
-      if (c0 != c1) {
+      if (c0 != c1)
+      {
         return false;
       }
-      if (c0 == 0) {
+      if (c0 == 0)
+      {
         return true;
       }
     }
   }
 
-  static bool StringBeginsWith(const char* text, size_t text_len,
-                               const char* prefix, size_t prefix_len) {
+  static bool StringBeginsWith(const char *text, size_t text_len,
+                               const char *prefix, size_t prefix_len)
+  {
     return prefix_len <= text_len && memcmp(text, prefix, prefix_len) == 0;
   }
 
   template <size_t kPrefixSize>
-  static bool StringBeginsWith(const char* text, size_t text_len,
-                               const char (&prefix)[kPrefixSize]) {
+  static bool StringBeginsWith(const char *text, size_t text_len,
+                               const char (&prefix)[kPrefixSize])
+  {
     return StringBeginsWith(text, text_len, prefix, kPrefixSize - 1);
   }
 
-  static bool StringBeginsWithCI(const char* text, size_t text_len,
-                                 const char* prefix, size_t prefix_len) {
+  static bool StringBeginsWithCI(const char *text, size_t text_len,
+                                 const char *prefix, size_t prefix_len)
+  {
     return prefix_len <= text_len &&
            StringEqualCI(text, prefix_len, prefix, prefix_len);
   }
 
   template <size_t kPrefixSize>
-  static bool StringBeginsWithCI(const char* text, size_t text_len,
-                                 const char (&prefix)[kPrefixSize]) {
+  static bool StringBeginsWithCI(const char *text, size_t text_len,
+                                 const char (&prefix)[kPrefixSize])
+  {
     return StringBeginsWithCI(text, text_len, prefix, kPrefixSize - 1);
   }
 
-  static bool StringEndsWithCI(const char* text, size_t text_len,
-                               const char* suffix, size_t suffix_len) {
+  static bool StringEndsWithCI(const char *text, size_t text_len,
+                               const char *suffix, size_t suffix_len)
+  {
     return text_len >= suffix_len &&
-        StringEqualCI(text + text_len - suffix_len, suffix_len,
-                      suffix, suffix_len);
+           StringEqualCI(text + text_len - suffix_len, suffix_len, suffix,
+                         suffix_len);
   }
 
   template <size_t kSuffixSize>
-  static bool StringEndsWithCI(const char* text, size_t text_len,
-                               const char (&suffix)[kSuffixSize]) {
+  static bool StringEndsWithCI(const char *text, size_t text_len,
+                               const char (&suffix)[kSuffixSize])
+  {
     return StringEndsWithCI(text, text_len, suffix, kSuffixSize - 1);
   }
 
-  static bool StringEndsWithCI(const char* text, const char* suffix) {
+  static bool StringEndsWithCI(const char *text, const char *suffix)
+  {
     return StringEndsWithCI(text, strlen(text), suffix, strlen(suffix));
   }
 
-  static bool StringBeginsWithAny(
-      const char* text, size_t text_len,
-      const std::vector<std::string>& prefixes) {
-    for (const std::string& prefix : prefixes) {
-      if (Gltf::StringBeginsWith(
-          text, text_len, prefix.c_str(), prefix.length())) {
+  static bool StringBeginsWithAny(const char *text, size_t text_len,
+                                  const std::vector<std::string> &prefixes)
+  {
+    for (const std::string &prefix : prefixes)
+    {
+      if (Gltf::StringBeginsWith(text, text_len, prefix.c_str(),
+                                 prefix.length()))
+      {
         return true;
       }
     }
     return false;
   }
 
-  static bool StringBeginsWithAnyCI(
-      const char* text, size_t text_len,
-      const std::vector<std::string>& prefixes) {
-    for (const std::string& prefix : prefixes) {
-      if (Gltf::StringBeginsWithCI(
-          text, text_len, prefix.c_str(), prefix.length())) {
+  static bool StringBeginsWithAnyCI(const char *text, size_t text_len,
+                                    const std::vector<std::string> &prefixes)
+  {
+    for (const std::string &prefix : prefixes)
+    {
+      if (Gltf::StringBeginsWithCI(text, text_len, prefix.c_str(),
+                                   prefix.length()))
+      {
         return true;
       }
     }
@@ -1282,30 +1402,37 @@ struct Gltf {
 
   // Sanitize a path by replacing non-portable characters with '_'.
   // * Returns true if the path is changed.
-  static bool SanitizePath(char* path);
+  static bool SanitizePath(char *path);
 
-  static std::string GetSanitizedPath(const char* path);
+  static std::string GetSanitizedPath(const char *path);
 
-  inline static std::string JoinPath(const std::string& a,
-                                     const std::string& b) {
-    if (a.empty()) {
+  inline static std::string JoinPath(const std::string &a,
+                                     const std::string &b)
+  {
+    if (a.empty())
+    {
       return b;
     }
     std::string j = a;
-    if (j.back() != '/' && j.back() != '\\') {
+    if (j.back() != '/' && j.back() != '\\')
+    {
       j += '/';
     }
     j += b;
     return j;
   }
 
-  inline static void SplitPath(
-      const std::string& path, std::string* out_dir, std::string* out_name) {
+  inline static void SplitPath(const std::string &path, std::string *out_dir,
+                               std::string *out_name)
+  {
     const size_t last_slash_pos = path.find_last_of("\\/");
-    if (last_slash_pos == std::string::npos) {
+    if (last_slash_pos == std::string::npos)
+    {
       out_dir->clear();
       *out_name = path;
-    } else {
+    }
+    else
+    {
       const size_t dir_len = last_slash_pos + 1;
       out_dir->assign(path.c_str(), dir_len);
       *out_name = path.c_str() + dir_len;
@@ -1314,31 +1441,34 @@ struct Gltf {
 
   // Gather the set of all URI paths referenced by this glTF file.
   // This does not include embedded data URIs or GLB blocks.
-  std::vector<const char*> GetReferencedUriPaths() const;
+  std::vector<const char *> GetReferencedUriPaths() const;
 
   // Get extensions referenced in the glTF (excluding those in extensionsUsed or
   // extensionsRequired).
   const std::vector<Gltf::ExtensionId> GetReferencedExtensions() const;
 };
 
-template <typename Enum> struct GltfEnumInfo;
+template <typename Enum>
+struct GltfEnumInfo;
 
 template <>
-struct GltfEnumInfo<Gltf::Sampler::WrapMode> {
-  static constexpr Gltf::Sampler::WrapMode kUnset =
-      Gltf::Sampler::kWrapUnset;
+struct GltfEnumInfo<Gltf::Sampler::WrapMode>
+{
+  static constexpr Gltf::Sampler::WrapMode kUnset = Gltf::Sampler::kWrapUnset;
   static constexpr Gltf::Sampler::WrapMode kDefault =
       Gltf::Sampler::kWrapRepeat;
 };
 template <>
-struct GltfEnumInfo<Gltf::Sampler::MagFilter> {
+struct GltfEnumInfo<Gltf::Sampler::MagFilter>
+{
   static constexpr Gltf::Sampler::MagFilter kUnset =
       Gltf::Sampler::kMagFilterUnset;
   static constexpr Gltf::Sampler::MagFilter kDefault =
       Gltf::Sampler::kMagFilterLinear;
 };
 template <>
-struct GltfEnumInfo<Gltf::Sampler::MinFilter> {
+struct GltfEnumInfo<Gltf::Sampler::MinFilter>
+{
   static constexpr Gltf::Sampler::MinFilter kUnset =
       Gltf::Sampler::kMinFilterUnset;
   static constexpr Gltf::Sampler::MinFilter kDefault =
@@ -1346,13 +1476,15 @@ struct GltfEnumInfo<Gltf::Sampler::MinFilter> {
 };
 
 template <typename Enum>
-inline bool Gltf::IsUnsetOrDefault(Enum e) {
+inline bool Gltf::IsUnsetOrDefault(Enum e)
+{
   return e == GltfEnumInfo<Enum>::kUnset || e == GltfEnumInfo<Enum>::kDefault;
 }
 
 template <typename Enum>
-inline Enum Gltf::GetDefaultIfUnset(Enum e) {
+inline Enum Gltf::GetDefaultIfUnset(Enum e)
+{
   return e == GltfEnumInfo<Enum>::kUnset ? GltfEnumInfo<Enum>::kDefault : e;
 }
 
-#endif  // GLTF_GLTF_H_
+#endif // GLTF_GLTF_H_
